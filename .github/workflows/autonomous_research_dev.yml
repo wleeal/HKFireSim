@@ -1,0 +1,47 @@
+name: 24/7 Autonomous Fire Simulation R&D
+
+on:
+  schedule:
+    # 6시간마다 자동 실행 (UTC 기준)
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # GitHub 웹에서 수동으로 즉시 실행할 수 있는 버튼 활성화
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  research-and-develop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install google-genai torch pytest numpy
+
+      - name: Run Autonomous Research & Code Improvement Loop
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python scripts/agent_loop.py
+
+      - name: Create Pull Request with Improved Simulation Code
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "feat(sim): autonomous Gemini R&D fire spread model update"
+          title: "[Auto-R&D] 화재 확산 시뮬레이션 모델 개선 및 최신 리서치 반영"
+          body: |
+            Gemini 자율 연구·개발 에이전트가 최신 논문 조사 및 물리 검증 테스트(`pytest`)를 통과한 코드 개선안을 제출했습니다.
+            - 상세 리서치 요약: `LATEST_RESEARCH_NOTES.md` 참조
+            - 검증 항목: 수치 안정성(NaN/Inf 방지), 질량·에너지 보존 범위, 연산 속도 벤치마크
+          branch: auto-rd/fire-sim-update
+          delete-branch: true
